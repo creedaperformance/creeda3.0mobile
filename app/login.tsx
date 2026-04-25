@@ -70,7 +70,7 @@ export default function LoginScreen() {
             autoCorrect={false}
             keyboardType="email-address"
             onChangeText={setEmail}
-            placeholder="you@creeda.app"
+            placeholder="you@creeda.in"
             placeholderTextColor="rgba(255,255,255,0.28)"
             value={email}
             className="mt-3 rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-4 text-base text-white"
