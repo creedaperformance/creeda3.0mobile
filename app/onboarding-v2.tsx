@@ -1171,17 +1171,11 @@ export default function OnboardingV2Screen() {
           {message ? <Text className="mt-3 text-sm leading-6 text-white/62">{message}</Text> : null}
           <Pressable
             onPress={() => {
-              if (persona === 'individual') {
-                router.replace('/individual-scan-analyze?sport=other&baseline=onboarding_v2');
+              if (persona === 'coach') {
+                router.replace('/(tabs)');
                 return;
               }
-
-              if (persona === 'athlete') {
-                router.replace('/athlete-scan-analyze?sport=other&baseline=onboarding_v2');
-                return;
-              }
-
-              router.replace('/(tabs)');
+              router.replace('/movement-baseline');
             }}
             className="mt-6 min-h-14 flex-row items-center justify-center gap-2 rounded-2xl bg-[#6EE7B7] px-5"
           >

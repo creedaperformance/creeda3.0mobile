@@ -98,7 +98,9 @@ module.exports = () => ({
           background: false,
         },
       ],
+      './plugins/with-mediapipe-models.js',
     ],
+    assetBundlePatterns: ['**/*', 'assets/models/*.task'],
     extra: {
       supabaseUrl: resolveEnvValue('EXPO_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL'),
       supabaseAnonKey: resolveEnvValue('EXPO_PUBLIC_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'),

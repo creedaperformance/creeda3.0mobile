@@ -15,6 +15,7 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding-phase-2" options={{ headerShown: false }} />
         <Stack.Screen name="daily-ritual" options={{ headerShown: false }} />
         <Stack.Screen name="ai-coach" options={{ headerShown: false }} />
+        <Stack.Screen name="movement-baseline" options={{ headerShown: false }} />
         <Stack.Screen name="athlete-onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="athlete-event/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="athlete-events" options={{ headerShown: false }} />
