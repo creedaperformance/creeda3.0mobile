@@ -1165,16 +1165,36 @@ export default function OnboardingV2Screen() {
           {phase1Result?.readiness ? (
             <Text className="mt-3 text-sm leading-6 text-white/62">
               Provisional readiness is {phase1Result.readiness.score}/100. {phase1Result.readiness.directive}
+              {' '}Run one movement baseline next to unlock the first body-specific finding.
             </Text>
           ) : null}
           {message ? <Text className="mt-3 text-sm leading-6 text-white/62">{message}</Text> : null}
           <Pressable
-            onPress={() => router.replace('/(tabs)')}
+            onPress={() => {
+              if (persona === 'individual') {
+                router.replace('/individual-scan-analyze?sport=other&baseline=onboarding_v2');
+                return;
+              }
+
+              if (persona === 'athlete') {
+                router.replace('/athlete-scan-analyze?sport=other&baseline=onboarding_v2');
+                return;
+              }
+
+              router.replace('/(tabs)');
+            }}
             className="mt-6 min-h-14 flex-row items-center justify-center gap-2 rounded-2xl bg-[#6EE7B7] px-5"
           >
-            <Text className="text-sm font-black text-slate-950">Open dashboard</Text>
+            <Text className="text-sm font-black text-slate-950">
+              {persona === 'coach' ? 'Open dashboard' : 'Run movement baseline'}
+            </Text>
             <ArrowRight color="#020617" size={18} />
           </Pressable>
+          {persona !== 'coach' ? (
+            <Pressable onPress={() => router.replace('/(tabs)')} className="items-center py-4">
+              <Text className="text-sm font-bold text-white/58">Skip to dashboard</Text>
+            </Pressable>
+          ) : null}
         </NeonGlassCardNative>
       ) : null}
     </ScrollView>

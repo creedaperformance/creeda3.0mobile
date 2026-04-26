@@ -24,6 +24,11 @@ function normalizeSportParam(value: string | string[] | undefined) {
   return value || ''
 }
 
+function normalizeOptionalParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) return value[0]
+  return value
+}
+
 function getNativeReportRoute(role: AppRole, reportId: string) {
   if (role === 'individual') return `/individual-scan-report/${reportId}`
   if (role === 'coach') return `/coach-report/${reportId}`
@@ -58,16 +63,28 @@ export function VideoAnalysisAnalyzer({
   expectedRole: AppRole
 }) {
   const router = useRouter()
-  const params = useLocalSearchParams<{ sport?: string | string[] }>()
+  const params = useLocalSearchParams<{
+    sport?: string | string[]
+    baseline?: string | string[]
+  }>()
   const sport = normalizeSportParam(params.sport)
+  const baseline = normalizeOptionalParam(params.baseline)
   const { session, user } = useMobileAuth()
   const [loadingLabel, setLoadingLabel] = useState('Preparing secure analyzer session...')
   const [webError, setWebError] = useState<string | null>(null)
 
   const nextPath = useMemo(() => {
-    const encodedSport = encodeURIComponent(sport || 'other')
-    return `/${expectedRole}/scan/analyze?sport=${encodedSport}`
-  }, [expectedRole, sport])
+    const searchParams = new URLSearchParams({
+      sport: sport || 'other',
+      source: 'mobile',
+    })
+
+    if (baseline) {
+      searchParams.set('baseline', baseline)
+    }
+
+    return `/${expectedRole}/scan/analyze?${searchParams.toString()}`
+  }, [baseline, expectedRole, sport])
 
   const analyzerSource = useMemo(() => {
     if (!session?.access_token || !session.refresh_token) return null
