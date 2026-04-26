@@ -16,6 +16,9 @@ export default function RootLayout() {
         <Stack.Screen name="daily-ritual" options={{ headerShown: false }} />
         <Stack.Screen name="ai-coach" options={{ headerShown: false }} />
         <Stack.Screen name="movement-baseline" options={{ headerShown: false }} />
+        <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
+        <Stack.Screen name="health-connect" options={{ headerShown: false }} />
+        <Stack.Screen name="apple-health" options={{ headerShown: false }} />
         <Stack.Screen name="athlete-onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="athlete-event/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="athlete-events" options={{ headerShown: false }} />
