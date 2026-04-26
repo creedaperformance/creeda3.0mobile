@@ -1448,6 +1448,28 @@ export function submitOnboardingV2DailyRitual(
   )
 }
 
+export type AiChatRequest = {
+  conversation_id?: string
+  topic?: string
+  user_message: string
+  medical_report_id?: string
+}
+
+export type AiChatResponse = {
+  ok: boolean
+  conversation: { id: string; topic: string; title: string }
+  message: { role: 'assistant'; content: string }
+  tokens?: { input: number; output: number }
+  model?: string
+}
+
+export function sendAiChat(accessToken: string, payload: AiChatRequest) {
+  return apiFetch<AiChatResponse>('/api/mobile/ai/chat', accessToken, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 export function fetchHealthConnection(accessToken: string) {
   return apiFetch<HealthConnectionResponse>('/api/v1/health/connection', accessToken)
 }
