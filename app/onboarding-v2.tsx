@@ -1191,9 +1191,17 @@ export default function OnboardingV2Screen() {
             <ArrowRight color="#020617" size={18} />
           </Pressable>
           {persona !== 'coach' ? (
-            <Pressable onPress={() => router.replace('/(tabs)')} className="items-center py-4">
-              <Text className="text-sm font-bold text-white/58">Skip to dashboard</Text>
-            </Pressable>
+            <>
+              <Pressable
+                onPress={() => router.push('/onboarding-phase-2')}
+                className="mt-3 min-h-13 items-center justify-center rounded-2xl border border-[#6EE7B7]/30 px-5"
+              >
+                <Text className="text-sm font-bold text-[#D1FAE5]">Continue Phase 2 diagnostics</Text>
+              </Pressable>
+              <Pressable onPress={() => router.replace('/(tabs)')} className="items-center py-4">
+                <Text className="text-sm font-bold text-white/58">Skip to dashboard</Text>
+              </Pressable>
+            </>
           ) : null}
         </NeonGlassCardNative>
       ) : null}

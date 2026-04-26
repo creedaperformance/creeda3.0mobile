@@ -1,6 +1,7 @@
 import { mobileEnv } from './env'
 import type {
   OnboardingV2Phase1Submission,
+  OnboardingV2Phase2Submission,
   OnboardingV2SafetyGateSubmission,
 } from '../../packages/schemas/src'
 
@@ -703,6 +704,24 @@ export interface OnboardingV2Phase1Response {
   destination: string
 }
 
+export interface OnboardingV2Phase2Response {
+  success: true
+  day: OnboardingV2Phase2Submission['day']
+  completedDays: OnboardingV2Phase2Submission['day'][]
+  profileCalibrationPct: number
+  confidence: {
+    tier: 'low' | 'medium' | 'high' | 'locked'
+    pct: number
+  }
+  destination: string
+  latestDay: {
+    day: OnboardingV2Phase2Submission['day']
+    label: string
+    captured_at: string
+    capacity_tests_count: number
+  }
+}
+
 export interface IndividualMobileDashboard {
   type: 'individual'
   readinessScore: number
@@ -1366,6 +1385,20 @@ export function submitOnboardingV2Phase1(
 ) {
   return apiFetch<OnboardingV2Phase1Response>(
     '/api/mobile/onboarding/v2/phase1',
+    accessToken,
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }
+  )
+}
+
+export function submitOnboardingV2Phase2(
+  accessToken: string,
+  payload: OnboardingV2Phase2Submission
+) {
+  return apiFetch<OnboardingV2Phase2Response>(
+    '/api/mobile/onboarding/v2/phase2',
     accessToken,
     {
       method: 'POST',
