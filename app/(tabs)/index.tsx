@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -34,8 +34,17 @@ import { GlowingButtonNative } from '../../src/components/neon/GlowingButtonNati
 import { NeonGlassCardNative } from '../../src/components/neon/NeonGlassCardNative';
 import { ReadinessOrbNative } from '../../src/components/neon/ReadinessOrbNative';
 import { ProfileAvatarNative } from '../../src/components/profile/ProfileAvatarNative';
+import { BioStrip } from '../../src/components/dashboard/BioStrip';
+import { LoadChart } from '../../src/components/dashboard/LoadChart';
+import { SessionDrillCard } from '../../src/components/dashboard/SessionDrillCard';
+import { SportFocusZone } from '../../src/components/dashboard/SportFocusZone';
+import { SportRail, type SportRailItem } from '../../src/components/dashboard/SportRail';
+import { TrackerTrendSheet, type TrackerTrendMetric } from '../../src/components/dashboard/TrackerTrendSheet';
+import { CoachSquadHub } from '../../src/components/coach/CoachSquadHub';
+import { EmptyStateCard } from '../../src/components/ui/EmptyStateCard';
 import { useMobileAuth } from '../../src/lib/auth';
 import { fetchMobileDashboard, type MobileDashboard } from '../../src/lib/mobile-api';
+import { getRoleAccent } from '../../src/theme/creedaTokens';
 
 function StatPill({ label, value }: { label: string; value: string }) {
   return (
@@ -77,6 +86,27 @@ function EmptyState({ title, body }: { title: string; body: string }) {
   );
 }
 
+function StreakGrid({ hasHistory }: { hasHistory: boolean }) {
+  return (
+    <View className="flex-row gap-2">
+      {Array.from({ length: 7 }).map((_, index) => (
+        <View
+          key={index}
+          className="h-11 flex-1 items-center justify-center rounded-2xl border"
+          style={{
+            borderColor: hasHistory ? 'rgba(239,159,39,0.45)' : 'rgba(255,255,255,0.07)',
+            backgroundColor: hasHistory ? 'rgba(239,159,39,0.16)' : 'rgba(255,255,255,0.035)',
+          }}
+        >
+          <Text className="text-[10px] font-black uppercase tracking-[0.12em] text-white/45">
+            D{index + 1}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function QuickActionCard({
   title,
   detail,
@@ -113,6 +143,8 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSportId, setSelectedSportId] = useState('primary');
+  const [trackerSheetVisible, setTrackerSheetVisible] = useState(false);
 
   async function loadDashboard(showRefreshState = false) {
     if (!session?.access_token) {
@@ -151,6 +183,24 @@ export default function HomeScreen() {
     (typeof session?.user.user_metadata?.full_name === 'string'
       ? session.user.user_metadata.full_name
       : 'CREEDA Athlete');
+  const accent = getRoleAccent(user?.profile.role);
+  const athleteDashboard = dashboard?.type === 'athlete' ? dashboard : null;
+  const athleteSportLabel = user?.profile.primarySport || 'General readiness';
+  const athleteSports = useMemo<SportRailItem[]>(
+    () =>
+      athleteDashboard
+        ? [
+            {
+              id: 'primary',
+              label: athleteSportLabel,
+              detail: user?.profile.position || 'Primary focus',
+            },
+          ]
+        : [],
+    [athleteDashboard, athleteSportLabel, user?.profile.position]
+  );
+  const athleteLoadPoints = useMemo(() => [], []);
+  const athleteTrendMetrics = useMemo<TrackerTrendMetric[]>(() => [], []);
 
   if (loading && !dashboard) {
     return (
@@ -288,42 +338,106 @@ export default function HomeScreen() {
 
         {dashboard?.type === 'athlete' ? (
           <>
-            <View className="items-center mb-8 mt-4">
-              <ReadinessOrbNative score={dashboard.readinessScore ?? 0} />
-              <Text className="mt-6 text-4xl font-black tracking-tight text-white">
-                {dashboard.decision || 'Awaiting Check-In'}
+            <NeonGlassCardNative watermark="READY">
+              <View className="items-center">
+                <ReadinessOrbNative score={dashboard.readinessScore ?? 0} size={184} />
+                <Text className="mt-6 text-center text-4xl font-black tracking-tight text-white">
+                  {dashboard.decision || 'Awaiting Check-In'}
+                </Text>
+                <Text
+                  className="mt-3 rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em]"
+                  style={{ backgroundColor: `${accent}18`, color: accent }}
+                >
+                  Readiness {dashboard.readinessScore ?? '--'} • Risk {dashboard.riskScore ?? '--'}
+                </Text>
+                <Text className="mt-4 text-center text-sm leading-6 text-white/58">
+                  {dashboard.primaryReason}
+                </Text>
+              </View>
+              <View className="mt-6 flex-row gap-3">
+                <View className="flex-1">
+                  <GlowingButtonNative
+                    title="Daily Ritual"
+                    variant="chakra"
+                    onPress={() => router.push('/daily-ritual')}
+                  />
+                </View>
+                <View className="flex-1">
+                  <GlowingButtonNative
+                    title="Trends"
+                    variant="saffron"
+                    onPress={() => setTrackerSheetVisible(true)}
+                  />
+                </View>
+              </View>
+            </NeonGlassCardNative>
+
+            <View className="mb-4 mt-2">
+              <Text className="mb-3 text-[10px] font-bold uppercase tracking-[0.28em] text-white/35">
+                Sport focus
               </Text>
-              <Text className="mt-3 rounded-full bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-chakra-neon">
-                Readiness {dashboard.readinessScore ?? '--'} • Risk {dashboard.riskScore ?? '--'}
-              </Text>
+              <SportRail
+                sports={athleteSports}
+                selectedSportId={selectedSportId}
+                accent={accent}
+                onSelect={setSelectedSportId}
+              />
             </View>
 
-            <NeonGlassCardNative watermark="ATH">
+            <View className="mb-4 flex-row flex-wrap gap-3">
+              <BioStrip health={dashboard.health} accent={accent} />
+            </View>
+
+            <SportFocusZone
+              sportLabel={athleteSportLabel}
+              decision={dashboard.decision || 'Awaiting Check-In'}
+              primaryReason={dashboard.primaryReason}
+              actionInstruction={dashboard.actionInstruction}
+              objectiveHeadline={dashboard.objective.headline}
+              objectiveSummary={dashboard.objective.summary}
+              contextSummary={dashboard.context?.summary}
+              accent={accent}
+            />
+
+            <LoadChart points={athleteLoadPoints} accent={accent} />
+
+            <NeonGlassCardNative>
               <SectionTitle
-                title="Today’s call"
-                detail={dashboard.primaryReason}
-                icon={Target}
+                title="Session cards"
+                detail="These cards route into existing CREEDA workflows. They do not invent workout scores or drill completion."
+                icon={ClipboardList}
               />
-              <Text className="text-sm leading-6 text-white/70">{dashboard.actionInstruction}</Text>
-              <View className="mt-5 gap-3">
-                <StatPill
-                  label="Objective"
-                  value={dashboard.objective.headline || dashboard.objective.summary}
-                />
-                <StatPill
-                  label="Health Sync"
-                  value={
-                    dashboard.health.connected
-                      ? `${dashboard.health.sampleDays} days connected`
-                      : 'Manual only'
-                  }
-                />
-              </View>
-              <View className="mt-5">
-                <GlowingButtonNative
-                  title="Daily Ritual"
-                  variant="chakra"
+              <View className="mt-4 gap-3">
+                <SessionDrillCard
+                  eyebrow="Daily loop"
+                  title="Update readiness"
+                  detail="Use the daily ritual before training so CREEDA can refresh today’s decision with real inputs."
+                  icon={HeartPulse}
+                  accent={accent}
+                  actionLabel="Open ritual"
                   onPress={() => router.push('/daily-ritual')}
+                />
+                <SessionDrillCard
+                  eyebrow="Plan"
+                  title={dashboard.objective.headline || 'Build the next training block'}
+                  detail={dashboard.objective.summary}
+                  icon={Dumbbell}
+                  accent={accent}
+                  actionLabel="Open plans"
+                  onPress={() => router.push('/athlete-plans')}
+                />
+                <SessionDrillCard
+                  eyebrow="Technique"
+                  title={dashboard.latestVideoReport ? 'Review latest movement scan' : 'Create a movement scan'}
+                  detail={
+                    dashboard.latestVideoReport
+                      ? 'A movement report is available. Open the scan hub to review it from the native flow.'
+                      : 'No movement report was returned in the dashboard payload yet. Run a scan to create one.'
+                  }
+                  icon={Video}
+                  accent={accent}
+                  actionLabel="Open scan"
+                  onPress={() => router.push('/athlete-scan')}
                 />
               </View>
             </NeonGlassCardNative>
@@ -331,7 +445,7 @@ export default function HomeScreen() {
             <NeonGlassCardNative>
               <SectionTitle
                 title="Quick actions"
-                detail="These routes now match the live athlete web app instead of the old Expo placeholders."
+                detail="The older working routes stay available while the dashboard becomes more sport-aware."
                 icon={ClipboardList}
               />
               <View className="gap-3">
@@ -348,65 +462,28 @@ export default function HomeScreen() {
                   onPress={() => router.push('/athlete-review')}
                 />
                 <QuickActionCard
-                  title="Plans"
-                  detail="Open the athlete plans area and the current plan-generation entry point."
-                  icon={Dumbbell}
-                  onPress={() => router.push('/athlete-plans')}
-                />
-                <QuickActionCard
                   title="Monthly Report"
                   detail="Open the 28-day athlete performance report with load, readiness, and warning signals."
                   icon={CalendarDays}
                   onPress={() => router.push('/athlete-report')}
                 />
-                <QuickActionCard
-                  title="Video Scan"
-                  detail="Open the scan hub, pick a sport, and review recent biomechanical reports."
-                  icon={Video}
-                  onPress={() => router.push('/athlete-scan')}
-                />
-                <QuickActionCard
-                  title="Events"
-                  detail="Browse the athlete event radar and activate event prep from mobile."
-                  icon={MapPin}
-                  onPress={() => router.push('/athlete-events')}
-                />
-                <QuickActionCard
-                  title="Objective Tests"
-                  detail="Open the native objective test lab with protocol history and reaction tap."
-                  icon={Timer}
-                  onPress={() => router.push('/athlete-tests')}
+                <GlowingButtonNative
+                  title="Tracker Trends"
+                  variant="chakra"
+                  onPress={() => setTrackerSheetVisible(true)}
                 />
               </View>
             </NeonGlassCardNative>
 
-            <NeonGlassCardNative>
-              <SectionTitle
-                title="Health influence"
-                detail={
-                  dashboard.health.connected
-                    ? `Latest sync ${dashboard.health.latestMetricDate || 'pending'} from ${dashboard.health.source}.`
-                    : 'Connect Apple Health or Health Connect from the Health tab to feed recovery metrics into CREEDA.'
-                }
+            {!dashboard.health.connected ? (
+              <EmptyStateCard
+                title="Health sync is not connected"
+                body="Connect Apple Health or Health Connect from the Recovery tab to feed sleep, HRV, heart rate, and steps into the readiness engine."
+                accent={accent}
                 icon={HeartPulse}
+                actionLabel="Open Recovery"
+                onAction={() => router.push('/(tabs)/health')}
               />
-              <View className="flex-row flex-wrap gap-3">
-                <StatPill label="Steps" value={dashboard.health.latestSteps ? `${dashboard.health.latestSteps}` : 'N/A'} />
-                <StatPill label="Sleep" value={dashboard.health.avgSleepHours ? `${dashboard.health.avgSleepHours} h` : 'N/A'} />
-                <StatPill label="Heart Rate" value={dashboard.health.avgHeartRate ? `${dashboard.health.avgHeartRate}` : 'N/A'} />
-                <StatPill label="HRV" value={dashboard.health.avgHrv ? `${dashboard.health.avgHrv}` : 'N/A'} />
-              </View>
-            </NeonGlassCardNative>
-
-            {dashboard.context ? (
-              <NeonGlassCardNative>
-                <SectionTitle
-                  title={`${dashboard.context.loadLabel} context load`}
-                  detail={dashboard.context.summary}
-                  icon={Brain}
-                />
-                <Text className="text-sm leading-6 text-white/70">{dashboard.context.nextAction}</Text>
-              </NeonGlassCardNative>
             ) : null}
 
             <NeonGlassCardNative>
@@ -417,115 +494,52 @@ export default function HomeScreen() {
               />
               <Text className="text-sm leading-6 text-white/70">{dashboard.nutrition.nextAction}</Text>
             </NeonGlassCardNative>
+
+            <TrackerTrendSheet
+              visible={trackerSheetVisible}
+              trends={athleteTrendMetrics}
+              accent={accent}
+              onClose={() => setTrackerSheetVisible(false)}
+            />
           </>
         ) : null}
 
         {dashboard?.type === 'coach' ? (
-          <>
-            <NeonGlassCardNative watermark="CO">
-              <SectionTitle
-                title="Coach weekly signal"
-                detail={`${dashboard.periodLabel}. ${dashboard.biggestWin}`}
-                icon={Users}
-              />
-              <View className="mt-4 flex-row flex-wrap gap-3">
-                <StatPill label="Athletes" value={`${dashboard.athleteCount}`} />
-                <StatPill label="Readiness" value={`${dashboard.averageReadiness}`} />
-                <StatPill label="Interventions" value={`${dashboard.activeInterventions}`} />
-                <StatPill label="Low Data" value={`${dashboard.lowDataCount}`} />
-              </View>
-            </NeonGlassCardNative>
-
-            <NeonGlassCardNative>
-              <SectionTitle
-                title="Next week focus"
-                detail={dashboard.nextWeekFocus}
-                icon={TrendingUp}
-              />
-              <Text className="text-sm leading-6 text-white/70">
-                Highest risk cluster: {dashboard.highestRiskCluster}
-              </Text>
-            </NeonGlassCardNative>
-
-            <NeonGlassCardNative>
-              <SectionTitle
-                title="Quick actions"
-                detail="Coach review, analytics, academy ops, and report feed are now reachable natively from the mobile home flow."
-                icon={ClipboardList}
-              />
-              <View className="gap-3">
-                <QuickActionCard
-                  title="Weekly Review"
-                  detail="Open the full coach weekly review with priorities, group suggestions, and squad identity."
-                  icon={TrendingUp}
-                  onPress={() => router.push('/coach-review')}
-                />
-                <QuickActionCard
-                  title="Analytics"
-                  detail="Open the full coach analytics layer with squad trends, bottlenecks, and team comparison."
-                  icon={BarChart3}
-                  onPress={() => router.push('/coach-analytics')}
-                />
-                <QuickActionCard
-                  title="Academy Ops"
-                  detail="Manage academy team settings, junior-athlete handoff readiness, and parent communication."
-                  icon={Building2}
-                  onPress={() => router.push('/coach-academy')}
-                />
-                <QuickActionCard
-                  title="Report Feed"
-                  detail="See the biomechanical report feed from athlete movement scans."
-                  icon={Video}
-                  onPress={() => router.push('/coach-reports')}
-                />
-              </View>
-            </NeonGlassCardNative>
-
-            <NeonGlassCardNative>
-              <SectionTitle
-                title="Top priority athletes"
-                detail={
-                  dashboard.topPriorityAthletes.length
-                    ? 'The highest-signal squad items from the live CREEDA coach queue.'
-                    : 'No live escalations right now.'
-                }
-                icon={TriangleAlert}
-              />
-              {dashboard.topPriorityAthletes.length ? (
-                <View className="gap-3">
-                  {dashboard.topPriorityAthletes.map((athlete) => (
-                    <View
-                      key={`${athlete.athleteId}-${athlete.queueType}`}
-                      className="rounded-2xl border border-white/5 bg-white/[0.03] p-4"
-                    >
-                      <Text className="text-base font-black tracking-tight text-white">
-                        {athlete.athleteName}
-                      </Text>
-                      <Text className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/35">
-                        {athlete.teamName} • {athlete.priority}
-                      </Text>
-                      <Text className="mt-3 text-sm leading-6 text-white/65">
-                        {athlete.recommendation}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              ) : null}
-            </NeonGlassCardNative>
-          </>
+          <CoachSquadHub
+            dashboard={dashboard}
+            onOpenReview={() => router.push('/coach-review')}
+            onOpenAthlete={(athlete) => {
+              const params = new URLSearchParams({
+                name: athlete.athleteName,
+                team: athlete.teamName,
+                priority: athlete.priority,
+                recommendation: athlete.recommendation,
+                reasons: athlete.reasons.join('|'),
+              });
+              router.push(`/squad/athlete/${encodeURIComponent(athlete.athleteId)}?${params.toString()}`);
+            }}
+          />
         ) : null}
 
         {dashboard?.type === 'individual' ? (
           <>
-            <View className="items-center mb-8 mt-4">
-              <ReadinessOrbNative score={dashboard.readinessScore || 0} />
-              <Text className="mt-6 text-4xl font-black tracking-tight text-white">
+            <NeonGlassCardNative watermark="TODAY">
+              <View className="items-center">
+                <ReadinessOrbNative score={dashboard.readinessScore || 0} size={178} />
+                <Text className="mt-6 text-center text-4xl font-black tracking-tight text-white">
                 {dashboard.directionLabel}
-              </Text>
-              <Text className="mt-3 rounded-full bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em] text-chakra-neon">
-                {dashboard.sport} • {dashboard.primaryGoal || 'General Fitness'}
-              </Text>
-            </View>
+                </Text>
+                <Text
+                  className="mt-3 rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.24em]"
+                  style={{ backgroundColor: `${accent}18`, color: accent }}
+                >
+                  {dashboard.sport} • {dashboard.primaryGoal || 'General Fitness'}
+                </Text>
+                <Text className="mt-4 text-center text-sm leading-6 text-white/58">
+                  {dashboard.directionSummary}
+                </Text>
+              </View>
+            </NeonGlassCardNative>
 
             <NeonGlassCardNative watermark="IND">
               <SectionTitle
@@ -540,6 +554,43 @@ export default function HomeScreen() {
                   variant="chakra"
                   onPress={() => router.push('/daily-ritual')}
                 />
+              </View>
+            </NeonGlassCardNative>
+
+            <NeonGlassCardNative>
+              <SectionTitle
+                title="Mood, sleep, soreness"
+                detail="Use the individual log or daily ritual to save real check-in state. This card does not display made-up mood or soreness values."
+                icon={HeartPulse}
+              />
+              <View className="mt-4 gap-3">
+                <SessionDrillCard
+                  eyebrow="Check-in"
+                  title="Log how you feel"
+                  detail="Sleep, energy, stress, soreness, hydration, and context save through the existing individual daily log endpoint."
+                  icon={Moon}
+                  accent={accent}
+                  actionLabel="Open log"
+                  onPress={() => router.push('/individual-log')}
+                />
+                <SessionDrillCard
+                  eyebrow="Tip"
+                  title={dashboard.today?.todayFocus || 'Build today from your next check-in'}
+                  detail={dashboard.today?.adaptationNote || dashboard.explanation}
+                  icon={Brain}
+                  accent={accent}
+                />
+              </View>
+            </NeonGlassCardNative>
+
+            <NeonGlassCardNative>
+              <SectionTitle
+                title="7-day streak"
+                detail="The dashboard payload does not include day-by-day streak history yet, so the grid stays neutral."
+                icon={Footprints}
+              />
+              <View className="mt-5">
+                <StreakGrid hasHistory={false} />
               </View>
             </NeonGlassCardNative>
 

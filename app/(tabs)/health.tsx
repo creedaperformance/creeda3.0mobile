@@ -39,6 +39,8 @@ export default function HealthScreen() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [showEducation, setShowEducation] = useState(false);
+
   async function loadHealthState(showRefreshState = false) {
     if (!session?.access_token) {
       setLoading(false);
@@ -201,12 +203,30 @@ export default function HealthScreen() {
           </View>
 
           <View className="mt-5">
+            {showEducation ? (
+              <View className="mb-4 rounded-2xl border border-[#00E5FF]/30 bg-[#00E5FF]/10 p-4">
+                <Text className="text-sm font-bold text-white mb-2">Permission Request Details</Text>
+                <Text className="text-sm leading-6 text-white/70 mb-2">
+                  • CREEDA will request read-only access to Steps, Sleep, Heart Rate, and HRV.
+                </Text>
+                <Text className="text-sm leading-6 text-white/70 mb-2">
+                  • This data strictly powers your daily readiness score and AI recovery advice.
+                </Text>
+                <Text className="text-sm leading-6 text-white/70">
+                  • You can revoke this permission anytime in your phone's Health app settings.
+                </Text>
+              </View>
+            ) : null}
             <GlowingButtonNative
-              title={syncing ? 'Syncing...' : 'Connect and Sync'}
+              title={syncing ? 'Syncing...' : showEducation ? 'I Understand, Connect to Health' : 'Connect and Sync'}
               variant="chakra"
               onPress={() => {
                 if (!syncing && support?.supported) {
-                  void handleSync();
+                  if (!showEducation) {
+                    setShowEducation(true);
+                  } else {
+                    void handleSync();
+                  }
                 }
               }}
             />

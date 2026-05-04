@@ -1210,10 +1210,15 @@ async function apiFetch<T>(path: string, accessToken: string, init?: RequestInit
     headers.set('Content-Type', 'application/json')
   }
 
-  const response = await fetch(`${mobileEnv.apiBaseUrl}${path}`, {
-    ...init,
-    headers,
-  })
+  let response: Response;
+  try {
+    response = await fetch(`${mobileEnv.apiBaseUrl}${path}`, {
+      ...init,
+      headers,
+    });
+  } catch (error) {
+    throw new Error('You appear to be offline. Please check your internet connection and try again.');
+  }
 
   const payload = (await response.json().catch(() => null)) as T | null
   if (!response.ok) {

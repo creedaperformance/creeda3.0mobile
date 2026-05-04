@@ -537,7 +537,15 @@ export default function AthleteCheckInScreen() {
         </NeonGlassCardNative>
 
         {error ? (
-          <Text className="mt-4 text-sm leading-6 text-[#FF8C5A]">{error}</Text>
+          <View className="mt-6">
+            <NeonGlassCardNative>
+              <View className="flex-row items-center gap-3">
+                <ShieldAlert color="#FF5F1F" size={18} />
+                <Text className="text-lg font-black tracking-tight text-white">Check-In Needs Attention</Text>
+              </View>
+              <Text className="mt-3 text-sm leading-6 text-white/65">{error}</Text>
+            </NeonGlassCardNative>
+          </View>
         ) : null}
 
         <View className="mt-6">

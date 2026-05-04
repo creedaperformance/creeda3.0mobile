@@ -14,6 +14,8 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding-v2" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding-phase-2" options={{ headerShown: false }} />
         <Stack.Screen name="daily-ritual" options={{ headerShown: false }} />
+        <Stack.Screen name="lifestyle-baseline" options={{ headerShown: false }} />
+        <Stack.Screen name="body-literacy-score" options={{ headerShown: false }} />
         <Stack.Screen name="ai-coach" options={{ headerShown: false }} />
         <Stack.Screen name="movement-baseline" options={{ headerShown: false }} />
         <Stack.Screen name="squad/[code]" options={{ headerShown: false }} />
@@ -33,12 +35,20 @@ export default function RootLayout() {
         <Stack.Screen name="check-in" options={{ headerShown: false }} />
         <Stack.Screen name="coach-academy" options={{ headerShown: false }} />
         <Stack.Screen name="coach-analytics" options={{ headerShown: false }} />
+        <Stack.Screen name="coach-squad" options={{ headerShown: false }} />
+        <Stack.Screen name="coach-train" options={{ headerShown: false }} />
+        <Stack.Screen name="coach-care" options={{ headerShown: false }} />
+        <Stack.Screen name="coach-insights" options={{ headerShown: false }} />
         <Stack.Screen name="coach-onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="coach-report/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="coach-review" options={{ headerShown: false }} />
         <Stack.Screen name="coach-reports" options={{ headerShown: false }} />
+        <Stack.Screen name="squad/athlete/[athleteId]" options={{ headerShown: false }} />
         <Stack.Screen name="individual-log" options={{ headerShown: false }} />
         <Stack.Screen name="individual-review" options={{ headerShown: false }} />
+        <Stack.Screen name="learn" options={{ headerShown: false }} />
+        <Stack.Screen name="individual-body" options={{ headerShown: false }} />
+        <Stack.Screen name="community" options={{ headerShown: false }} />
         <Stack.Screen name="individual-scan-analyze" options={{ headerShown: false }} />
         <Stack.Screen name="individual-scan" options={{ headerShown: false }} />
         <Stack.Screen name="individual-scan-report/[id]" options={{ headerShown: false }} />

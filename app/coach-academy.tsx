@@ -458,6 +458,22 @@ export default function CoachAcademyScreen() {
                     {team.academyProfile.lowCostMode ? (
                       <ReviewTonePill label="Low-cost mode" tone="success" />
                     ) : null}
+                    <Pressable
+                      onPress={async () => {
+                        try {
+                          await Share.share({
+                            message: `Join my squad on CREEDA! Use my Coach Locker Code: ${team.id} when signing up as an athlete.`,
+                          });
+                        } catch (error) {
+                          console.log('Error sharing locker code', error);
+                        }
+                      }}
+                      className="ml-2 rounded-full border border-[#00E5FF]/50 bg-[#00E5FF]/10 px-3 py-1.5"
+                    >
+                      <Text className="text-[10px] font-bold uppercase tracking-[0.18em] text-chakra-neon">
+                        Share Locker Code
+                      </Text>
+                    </Pressable>
                   </View>
 
                   <View className="mt-6">

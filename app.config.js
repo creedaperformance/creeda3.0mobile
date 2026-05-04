@@ -106,6 +106,9 @@ module.exports = () => ({
       supabaseAnonKey: resolveEnvValue('EXPO_PUBLIC_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'),
       apiBaseUrl: resolveEnvValue('EXPO_PUBLIC_API_BASE_URL', 'NEXT_PUBLIC_SITE_URL'),
       onboardingV2Enabled: resolveEnvValue('EXPO_PUBLIC_ONBOARDING_V2_ENABLED') === 'true',
+      eas: {
+        projectId: '4f23e7cf-3a0b-4e11-bd01-c3c8e4d3bd9d',
+      },
     },
   },
 })

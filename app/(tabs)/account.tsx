@@ -422,9 +422,9 @@ export default function AccountScreen() {
               <ShieldAlert color="#FF8C5A" size={16} />
             </View>
             <View className="flex-1">
-              <Text className="text-lg font-black tracking-tight text-white">Danger Zone</Text>
+              <Text className="text-lg font-black tracking-tight text-white">Delete Account & Data</Text>
               <Text className="mt-1 text-sm leading-6 text-white/55">
-                Permanently erase this CREEDA account and disconnect associated data. This mirrors the destructive web account flow.
+                Permanently erase this CREEDA account. This will immediately delete your profile, check-ins, connected health records, video scans, objective test data, and academy associations. This action cannot be undone.
               </Text>
             </View>
           </View>
